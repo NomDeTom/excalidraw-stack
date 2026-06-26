@@ -1,9 +1,12 @@
 [submodule "excalidraw"]
 	path = excalidraw
 	url = https://github.com/nomdetom/excalidraw.git
+	branch = main
 [submodule "excalidraw-storage-backend"]
 	path = excalidraw-storage-backend
 	url = https://github.com/nomdetom/excalidraw-storage-backend.git
+	branch = main
 [submodule "excalidraw-room"]
 	path = excalidraw-room
 	url = https://github.com/nomdetom/excalidraw-room.git
+	branch = main
