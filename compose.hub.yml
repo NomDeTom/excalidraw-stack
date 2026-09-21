@@ -1,0 +1,10 @@
+# Mode: hub — no storage service at all. Scenes, rooms and pasted files go to the
+# Irate-Box hub's store.py, which reimplements the /api/v2 contract over a directory.
+#
+# The browser calls this URL directly, so it must be reachable from the *client*, not
+# from inside Docker: through Caddy on the Pi it is http://192.168.4.1/api/v2; in dev
+# with the hub on this machine it is http://localhost:8088/api/v2 (Caddy) or :8000.
+services:
+  excalidraw:
+    environment:
+      - VITE_APP_HTTP_STORAGE_BACKEND_URL=${HUB_STORE_URL:-http://localhost:8000/api/v2}

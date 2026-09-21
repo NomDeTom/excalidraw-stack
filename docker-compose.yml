@@ -1,3 +1,11 @@
+# Base: the frontend and the live-collab relay. Pick a storage mode with one overlay:
+#   compose.full.yml    NestJS storage + Redis            (the original stack)
+#   compose.sqlite.yml  NestJS storage over a SQLite file (no Redis)
+#   compose.hub.yml     no storage service — the Irate-Box hub's store.py serves /api/v2
+# ./excalidraw.sh --mode <full|sqlite|hub> start   (or set STACK_MODE)
+#
+# VITE_APP_* values are injected at container start by launcher.py (the image rewrites
+# import.meta.env to window._env_), so changing mode never needs a rebuild.
 services:
   excalidraw:
     build:
@@ -9,33 +17,15 @@ services:
     restart: unless-stopped
     environment:
       - VITE_APP_STORAGE_BACKEND=http
-      - VITE_APP_HTTP_STORAGE_BACKEND_URL=http://storage:8080/api/v2
       - VITE_APP_WS_SERVER_URL=http://room:80
       - VITE_APP_FIREBASE_CONFIG={}
       - VITE_APP_BACKEND_V2_GET_URL=
       - VITE_APP_BACKEND_V2_POST_URL=
       - VITE_APP_ENABLE_TRACKING=false
     depends_on:
-      - storage
       - room
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-
-  storage:
-    build:
-      context: ./excalidraw-storage-backend
-    container_name: excalidraw-storage
-    restart: unless-stopped
-    environment:
-      - PORT=8080
-      - STORAGE_URI=redis://redis:6379
-    depends_on:
-      - redis
-    healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8080"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -50,14 +40,3 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-
-  redis:
-    image: redis:7-alpine
-    container_name: excalidraw-redis
-    restart: unless-stopped
-    volumes:
-      - redis-data:/data
-    command: redis-server --appendonly yes
-
-volumes:
-  redis-data:
