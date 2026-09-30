@@ -1,0 +1,7 @@
+{
+  "name": "excalidraw-stack-tests",
+  "private": true,
+  "type": "module",
+  "scripts": { "collab": "node collab-smoke.mjs" },
+  "dependencies": { "socket.io-client": "4.6.1" }
+}

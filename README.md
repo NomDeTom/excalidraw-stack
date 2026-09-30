@@ -85,6 +85,10 @@ mode never needs a rebuild. The per-mode nginx configs are in `nginx/`.
 **Shareable link:** menu → Export → "Export to link". The scene is stored through `/api/v2`;
 open the link in a private window.
 
+**Collaboration, without a browser:** `cd tests && npm install && node collab-smoke.mjs http://localhost:3000`
+(or a hub's address). Two clients join a room through `/socket.io/`; one broadcasts and the
+other must receive it. Run it after every submodule bump.
+
 **Collaboration:** the people icon (top right) → Start session. Open the room link in a second
 window and draw in one; it appears in the other. Close both and reopen the link: the drawing
 comes back from storage.
