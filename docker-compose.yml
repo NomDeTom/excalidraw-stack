@@ -1,11 +1,13 @@
 # Base: the frontend and the live-collab relay. Pick a storage mode with one overlay:
-#   compose.full.yml    NestJS storage + Redis            (the original stack)
-#   compose.sqlite.yml  NestJS storage over a SQLite file (no Redis)
-#   compose.hub.yml     no storage service — the Irate-Box hub's store.py serves /api/v2
-# ./excalidraw.sh --mode <full|sqlite|hub> start   (or set STACK_MODE)
+#   compose.hub.yml     no storage service -- the Irate-Box hub's store.py serves /api/v2 (default)
+#   compose.full.yml    legacy: NestJS storage + Redis
+#   compose.sqlite.yml  legacy: NestJS storage over a SQLite file
+# ./excalidraw.sh --mode <hub|full|sqlite> start   (or set STACK_MODE)
 #
-# VITE_APP_* values are injected at container start by launcher.py (the image rewrites
-# import.meta.env to window._env_), so changing mode never needs a rebuild.
+# The browser only ever talks to http://localhost:3000. nginx in the excalidraw container
+# proxies /api/v2/ (storage) and /socket.io/ (room) -- see nginx/ -- so no Docker-internal
+# hostname reaches the browser. VITE_APP_* values are injected at container start by
+# launcher.py, so changing mode never needs a rebuild.
 services:
   excalidraw:
     build:
@@ -17,10 +19,12 @@ services:
     restart: unless-stopped
     environment:
       - VITE_APP_STORAGE_BACKEND=http
-      - VITE_APP_WS_SERVER_URL=http://room:80
+      - VITE_APP_HTTP_STORAGE_BACKEND_URL=/api/v2
+      - VITE_APP_BACKEND_V2_GET_URL=/api/v2/scenes/
+      - VITE_APP_BACKEND_V2_POST_URL=/api/v2/scenes/
+      # Empty: socket.io connects to this page's own origin, i.e. /socket.io/ on nginx.
+      - VITE_APP_WS_SERVER_URL=
       - VITE_APP_FIREBASE_CONFIG={}
-      - VITE_APP_BACKEND_V2_GET_URL=
-      - VITE_APP_BACKEND_V2_POST_URL=
       - VITE_APP_ENABLE_TRACKING=false
     depends_on:
       - room

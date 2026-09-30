@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODE_FILE="${SCRIPT_DIR}/.stack-mode"
 
-# Storage mode: --mode flag, else STACK_MODE, else what the last start used, else full.
+# Storage mode: --mode flag, else STACK_MODE, else what the last start used, else hub.
 MODE="${STACK_MODE:-}"
 if [[ "${1:-}" == "--mode" ]]; then
   MODE="${2:-}"; shift 2
@@ -12,7 +12,7 @@ elif [[ "${1:-}" == --mode=* ]]; then
   MODE="${1#--mode=}"; shift
 fi
 if [[ -z "$MODE" && -f "$MODE_FILE" ]]; then MODE="$(<"$MODE_FILE")"; fi
-MODE="${MODE:-full}"
+MODE="${MODE:-hub}"
 case "$MODE" in
   full|sqlite|hub) ;;
   *) echo "ERROR: unknown mode '$MODE' (full | sqlite | hub)"; exit 1 ;;
@@ -24,10 +24,10 @@ usage() {
 Usage: $(basename "$0") [--mode full|sqlite|hub] <command>
 
 Modes (remembered in .stack-mode after a start; STACK_MODE env also works):
-  full       NestJS storage backend + Redis (default)
-  sqlite     NestJS storage backend over a SQLite file, no Redis
-  hub        no storage service; drawings go to the Irate-Box hub's store.py
-             (set HUB_STORE_URL, default http://localhost:8000/api/v2)
+  hub        (default) no storage service; drawings go to the Irate-Box hub's
+             store.py, which must be running on this machine on port 8000
+  full       legacy: NestJS storage backend + Redis
+  sqlite     legacy: NestJS storage backend over a SQLite file, no Redis
 
 Commands:
   start      Start all containers (detached)
